@@ -1,0 +1,11 @@
+{
+  "dependencies": [
+    "catch2"
+  ],
+  "overrides": [
+    {
+      "name": "catch2",
+      "version": "3.7.1#0"
+    }
+  ]
+}

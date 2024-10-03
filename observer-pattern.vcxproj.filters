@@ -3,4 +3,46 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include=".gitattributes">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include=".gitignore">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include=".runsettings">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include="vcpkg.json">
+      <Filter>Misc</Filter>
+    </None>
+    <None Include="vcpkg-configuration.json">
+      <Filter>Misc</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{2d811dbb-6469-414f-841d-2c4b572ac2e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ReferenceSemantics">
+      <UniqueIdentifier>{8e005dad-e6b8-4bb9-aa53-5a4fc495ed2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ValueSemantics">
+      <UniqueIdentifier>{ab7c9a00-ce82-4ed9-a081-241cc11ca7d0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="referencesemantics\observerexamples_referencesemantics.h">
+      <Filter>ReferenceSemantics</Filter>
+    </ClInclude>
+    <ClInclude Include="valuesemantics\observerexamples_valuesemantics.h">
+      <Filter>ValueSemantics</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
