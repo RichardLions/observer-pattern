@@ -9,29 +9,29 @@ This pattern decouples operations that need to run synchronously/immediately bas
 
 General:
 * This pattern is best for a one-to-many relationship between Subject (State owner) and Observers (State observers).
-* Allows the Subject to be loosely coupled by an interface to the Observers that depend on state changes within .
+* Allows the Subject to be loosely coupled by an interface to the Observers that depend on state changes owned by the Subject.
 
-Implementation Considerations:
+### Implementation Considerations:
 
-Lifetime of Observers stored by the Subject needs to be considered based on the systems requirements:
-* Who's responsible for Attaching/Detaching Observers?
+Lifetime of Subject/Observers needs to be considered based on the systems requirements:
+* Who is responsible for Attaching/Detaching Observers?
 * Can Observers be destroyed while still Attached to a Subject?
-* Can a Observer Attach to a Subject more than one?
+* Can a Observer Attach to a Subject more than once?
 * Can the Subject be destroyed with Attached Observers?
 
 The interface for notifying Observers can have different styles.
 
 Single function:
-* Pass the Subject and State change Tag
+* Pass the Subject and a state change Tag
 * Observers react to the tags they respond to and pull state required from the Subject
-* Can template Observer so code can be reused for other Subject/Observer relationship
-* Additional State change Tag do not require immediate updates to observers
-* Single function makes avoid a virtual interface simple by using one std::function
+* Observer code can be templated to reuse with other Subject/Observer relationships
+* Additional tags do not require immediate updates to Observers
+* A std::function can be used instead of a virtual function
 
 Function per change:
-* Function per change, pushing the new state
+* Function per state change, pushing the new state, no need for a Tag
 * Observers do not need to pull state from the Subject
-* Observer interface cannot be reused
+* Observer interface cannot be reused, due to unique function names per state change
 * Observers must implement each function even if they do not respond to the state change
 * Extending the interface with new state changes require all Observers to be updated
 
@@ -41,7 +41,7 @@ Create a Subject with an Observer:
 ```cpp
 enum class SubjectSystemTag
 {
-    Value,
+    Value
 };
 
 class SubjectSystem final : public Subject<SubjectSystem, SubjectSystemTag>
@@ -61,9 +61,9 @@ private:
 class SubjectObserver final : public SubjectSystem::Observer
 {
 public:
-    void OnNotification(const SubjectSystem& subject, const SubjectSystem::Tag tag) override
+    void OnNotification(const SubjectSystem& subject, const SubjectSystemTag tag) override
     {
-        if(tag == SubjectSystem::Tag::Value)
+        if(tag == SubjectSystemTag::Value)
         {
             subject.GetValue();
             ...
@@ -74,12 +74,14 @@ public:
 
 Attach and Trigger a Notification:
 ```cpp
-SubjectSystem subject{};
-SubjectObserver observer{};
-
-subject.AttachObserver(&observer);
-
-subject.SetValue(1); // Will trigger SubjectObserver::OnNotification
+{
+    SubjectSystem subject{};
+    SubjectObserver observer{};
+    
+    subject.AttachObserver(&observer);
+    
+    subject.SetValue(1); // Will trigger SubjectObserver::OnNotification
+}
 ```
 
 ## Setup
