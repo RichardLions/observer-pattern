@@ -14,7 +14,7 @@ namespace ReferenceSemantics
     {
     public:
         virtual ~Observer() = default;
-        virtual void OnNotification(const SubjectT& subject, const TagT tag) = 0;
+        virtual bool OnNotification(const SubjectT& subject, const TagT tag) = 0;
     };
 
     template<typename SubjectT, IsScopedEnum TagT>
@@ -76,12 +76,15 @@ namespace ReferenceSemantics
     class SubjectObserverA final : public SubjectSystem::Observer
     {
     public:
-        void OnNotification(const SubjectSystem& subject, const SubjectSystem::Tag tag) override
+        bool OnNotification(const SubjectSystem& subject, const SubjectSystem::Tag tag) override
         {
             if(tag == SubjectSystem::Tag::ValueA)
             {
                 m_Value = subject.GetValueA();
+                return true;
             }
+
+            return false;
         }
 
         int32_t GetValue() const { return m_Value; }
@@ -92,12 +95,15 @@ namespace ReferenceSemantics
     class SubjectObserverB final : public SubjectSystem::Observer
     {
     public:
-        void OnNotification(const SubjectSystem& subject, const SubjectSystem::Tag tag) override
+        bool OnNotification(const SubjectSystem& subject, const SubjectSystem::Tag tag) override
         {
             if(tag == SubjectSystem::Tag::ValueB)
             {
                 m_Value = subject.GetValueB();
+                return true;
             }
+
+            return false;
         }
 
         int32_t GetValue() const { return m_Value; }
@@ -111,6 +117,19 @@ namespace ReferenceSemantics
         SubjectObserverA observerA{};
         SubjectObserverB observerB{};
         SubjectObserverB observerBB{};
+        REQUIRE(subject.GetValueA() == 0);
+        REQUIRE(subject.GetValueB() == 0);
+        REQUIRE(observerA.GetValue() == 0);
+        REQUIRE(observerB.GetValue() == 0);
+        REQUIRE(observerBB.GetValue() == 0);
+
+        REQUIRE(observerA.OnNotification(subject, SubjectSystemTag::ValueA));
+        REQUIRE_FALSE(observerA.OnNotification(subject, SubjectSystemTag::ValueB));
+        REQUIRE(observerB.OnNotification(subject, SubjectSystemTag::ValueB));
+        REQUIRE_FALSE(observerB.OnNotification(subject, SubjectSystemTag::ValueA));
+        REQUIRE(observerBB.OnNotification(subject, SubjectSystemTag::ValueB));
+        REQUIRE_FALSE(observerBB.OnNotification(subject, SubjectSystemTag::ValueA));
+
         REQUIRE(subject.GetValueA() == 0);
         REQUIRE(subject.GetValueB() == 0);
         REQUIRE(observerA.GetValue() == 0);

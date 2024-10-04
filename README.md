@@ -11,6 +11,8 @@ General:
 * This pattern is best for a one-to-many relationship between Subject (State owner) and Observers (State observers).
 * Allows the Subject to be loosely coupled by an interface to the Observers that depend on state changes owned by the Subject.
 
+Note: Observers may return a response to the Subject when notified of a state change.
+
 ### Implementation Considerations:
 
 Lifetime of Subject/Observers needs to be considered based on the systems requirements:
@@ -18,6 +20,7 @@ Lifetime of Subject/Observers needs to be considered based on the systems requir
 * Can Observers be destroyed while still Attached to a Subject?
 * Can a Observer Attach to a Subject more than once?
 * Can the Subject be destroyed with Attached Observers?
+* Add debugging logic to track/assert misbehaving Subject/Observer lifetimes?
 
 The interface for notifying Observers can have different styles.
 
@@ -39,18 +42,18 @@ Function per change:
 
 Create a Subject with an Observer:
 ```cpp
-enum class SubjectSystemTag
+enum class StateChangeTag
 {
     Value
 };
 
-class SubjectSystem final : public Subject<SubjectSystem, SubjectSystemTag>
+class SubjectSystem final : public Subject<SubjectSystem, StateChangeTag>
 {
 public:
     void SetValue(const int32_t value)
     {
         m_Value = value;
-        SendNotification(SubjectSystemTag::Value);
+        SendNotification(StateChangeTag::Value);
     }
 
     int32_t GetValue() const{ return m_Value; }
@@ -61,13 +64,16 @@ private:
 class SubjectObserver final : public SubjectSystem::Observer
 {
 public:
-    void OnNotification(const SubjectSystem& subject, const SubjectSystemTag tag) override
+    bool OnNotification(const SubjectSystem& subject, const StateChangeTag tag) override
     {
-        if(tag == SubjectSystemTag::Value)
+        if(tag == StateChangeTag::Value)
         {
             subject.GetValue();
             ...
+            return true;
         }
+
+        return false;
     }
 };
 ```

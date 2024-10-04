@@ -14,16 +14,16 @@ namespace ValueSemantics
     class Observer
     {
     public:
-        using OnNotificationFunc = std::function<void(const SubjectT&, TagT)>;
+        using OnNotificationFunc = std::function<bool(const SubjectT&, TagT)>;
 
         Observer(OnNotificationFunc&& func)
             : m_OnNotification{std::move(func)}
         {
         }
 
-        void OnNotification(const SubjectT& subject, const TagT tag)
+        bool OnNotification(const SubjectT& subject, const TagT tag)
         {
-            m_OnNotification(subject, tag);
+            return m_OnNotification(subject, tag);
         }
     private:
         OnNotificationFunc m_OnNotification{};
@@ -95,7 +95,10 @@ namespace ValueSemantics
                     if(tag == SubjectSystem::Tag::ValueA)
                     {
                         value = subject.GetValueA();
+                        return true;
                     }
+
+                    return false;
                 }}
         {
         }
@@ -109,12 +112,15 @@ namespace ValueSemantics
     {
         constexpr uint32_t creationCount{250'000};
         int32_t freeFuncValueB{0};
-        void OnNotification(const SubjectSystem& subject, const SubjectSystem::Tag tag)
+        bool OnNotification(const SubjectSystem& subject, const SubjectSystem::Tag tag)
         {
             if(tag == SubjectSystem::Tag::ValueB)
             {
                 freeFuncValueB = subject.GetValueB();
+                return true;
             }
+
+            return false;
         }
     }
 
@@ -130,7 +136,10 @@ namespace ValueSemantics
                 if(tag == SubjectSystem::Tag::ValueB)
                 {
                     value = subject.GetValueB();
+                    return true;
                 }
+
+                return false;
             }};
 
         freeFuncValueB = 0;
@@ -141,6 +150,13 @@ namespace ValueSemantics
         REQUIRE(observerA.GetValue() == 0);
         REQUIRE(lambdaValueB == 0);
         REQUIRE(freeFuncValueB == 0);
+
+        REQUIRE(observerA.OnNotification(subject, SubjectSystemTag::ValueA));
+        REQUIRE_FALSE(observerA.OnNotification(subject, SubjectSystemTag::ValueB));
+        REQUIRE(observerB.OnNotification(subject, SubjectSystemTag::ValueB));
+        REQUIRE_FALSE(observerB.OnNotification(subject, SubjectSystemTag::ValueA));
+        REQUIRE(observerBB.OnNotification(subject, SubjectSystemTag::ValueB));
+        REQUIRE_FALSE(observerBB.OnNotification(subject, SubjectSystemTag::ValueA));
 
         subject.AttachObserver(&observerA);
         subject.AttachObserver(&observerB);
@@ -207,7 +223,10 @@ namespace ValueSemantics
                 if(tag == SubjectSystem::Tag::ValueB)
                 {
                     value = subject.GetValueB();
+                    return true;
                 }
+
+                return false;
             }};
 
         SubjectSystem subject{};
