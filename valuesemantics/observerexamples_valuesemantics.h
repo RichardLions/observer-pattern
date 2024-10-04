@@ -16,7 +16,7 @@ namespace ValueSemantics
     public:
         using OnNotificationFunc = std::function<bool(const SubjectT&, TagT)>;
 
-        Observer(OnNotificationFunc&& func)
+        explicit Observer(OnNotificationFunc&& func)
             : m_OnNotification{std::move(func)}
         {
         }
