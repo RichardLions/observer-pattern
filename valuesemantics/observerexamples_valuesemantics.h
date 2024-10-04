@@ -63,7 +63,7 @@ namespace ValueSemantics
         ValueB,
     };
 
-    class SubjectSystem : public Subject<SubjectSystem, SubjectSystemTag>
+    class SubjectSystem final : public Subject<SubjectSystem, SubjectSystemTag>
     {
     public:
         void SetValueA(const int32_t value)
@@ -85,7 +85,7 @@ namespace ValueSemantics
         int32_t m_ValueB{0};
     };
 
-    class SubjectObserverA : public SubjectSystem::Observer
+    class SubjectObserverA final : public SubjectSystem::Observer
     {
     public:
         SubjectObserverA()

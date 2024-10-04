@@ -51,7 +51,7 @@ namespace ReferenceSemantics
         ValueB,
     };
 
-    class SubjectSystem : public Subject<SubjectSystem, SubjectSystemTag>
+    class SubjectSystem final : public Subject<SubjectSystem, SubjectSystemTag>
     {
     public:
         void SetValueA(const int32_t value)

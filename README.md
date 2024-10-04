@@ -1,6 +1,86 @@
 # Observer Pattern
 
-...
+This pattern was inspired by [Game Programming Patterns](https://gameprogrammingpatterns.com/observer.html) and [
+C++ Software Design - Guideline 25](https://www.oreilly.com/library/view/c-software-design/9781098113155/).
+
+## When To Use
+
+This pattern decouples operations that need to run synchronously/immediately based on state changes they do not own.
+
+General:
+* This pattern is best for a one-to-many relationship between Subject (State owner) and Observers (State observers).
+* Allows the Subject to be loosely coupled by an interface to the Observers that depend on state changes within .
+
+Implementation Considerations:
+
+Lifetime of Observers stored by the Subject needs to be considered based on the systems requirements:
+* Who's responsible for Attaching/Detaching Observers?
+* Can Observers be destroyed while still Attached to a Subject?
+* Can a Observer Attach to a Subject more than one?
+* Can the Subject be destroyed with Attached Observers?
+
+The interface for notifying Observers can have different styles.
+
+Single function:
+* Pass the Subject and State change Tag
+* Observers react to the tags they respond to and pull state required from the Subject
+* Can template Observer so code can be reused for other Subject/Observer relationship
+* Additional State change Tag do not require immediate updates to observers
+* Single function makes avoid a virtual interface simple by using one std::function
+
+Function per change:
+* Function per change, pushing the new state
+* Observers do not need to pull state from the Subject
+* Observer interface cannot be reused
+* Observers must implement each function even if they do not respond to the state change
+* Extending the interface with new state changes require all Observers to be updated
+
+## Features
+
+Create a Subject with an Observer:
+```cpp
+enum class SubjectSystemTag
+{
+    Value,
+};
+
+class SubjectSystem final : public Subject<SubjectSystem, SubjectSystemTag>
+{
+public:
+    void SetValue(const int32_t value)
+    {
+        m_Value = value;
+        SendNotification(SubjectSystemTag::Value);
+    }
+
+    int32_t GetValue() const{ return m_Value; }
+private:
+    int32_t m_Value{0};
+};
+
+class SubjectObserver final : public SubjectSystem::Observer
+{
+public:
+    void OnNotification(const SubjectSystem& subject, const SubjectSystem::Tag tag) override
+    {
+        if(tag == SubjectSystem::Tag::Value)
+        {
+            subject.GetValue();
+            ...
+        }
+    }
+};
+```
+
+Attach and Trigger a Notification:
+```cpp
+SubjectSystem subject{};
+SubjectObserver observer{};
+
+subject.AttachObserver(&observer);
+
+subject.SetValue(1); // Will trigger SubjectObserver::OnNotification
+```
 
 ## Setup
 
@@ -37,8 +117,8 @@ vcpkg new --application
 ```
 
 ### TODO
-- [ ] Reference Semantics Implementation
-- [ ] Reference Semantics Implementation Unit Tests
-- [ ] Value Semantics Implementation Example
-- [ ] Value Semantics Implementation Example Unit Tests
-- [ ] Benchmarking
+- [x] Reference Semantics Implementation
+- [x] Reference Semantics Implementation Unit Tests
+- [x] Value Semantics Implementation Example
+- [x] Value Semantics Implementation Example Unit Tests
+- [x] Benchmarking
