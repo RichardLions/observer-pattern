@@ -13,7 +13,7 @@ General:
 
 Note: Observers may return a response to the Subject when notified of a state change.
 
-### Implementation Considerations:
+### Implementation Considerations
 
 Lifetime of Subject/Observers needs to be considered based on the systems requirements:
 * Who is responsible for Attaching/Detaching Observers?
